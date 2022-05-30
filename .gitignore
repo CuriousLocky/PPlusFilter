@@ -2,3 +2,5 @@
 !/PPlusVideoFilter
 !/PPlusVideoFilter.sln
 !/.gitignore
+!/include
+!/lib
