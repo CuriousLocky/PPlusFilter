@@ -4,3 +4,7 @@
 !/.gitignore
 !/include
 !/lib
+!/DummyMapFileWriter
+/DummyMapFileWriter/.vs
+/DummyMapFileWriter/DummyMapFileWriter/bin
+/DummyMapFileWriter/DummyMapFileWriter/obj
