@@ -36,6 +36,9 @@ protected:
     
     unsigned char* sharedBuffer;
     HANDLE sharedBufferFileHandle;
+    HANDLE sharedBufferSemaphore;
+
+    CRefTime now;
 
 public:
 

@@ -43,7 +43,7 @@ PPlusVideoStream::PPlusVideoStream(HRESULT* resultPointer, PPlusVideo* parentFil
     m_iImageHeight(VIDEOHEIGHT),
     m_iImageWidth(VIDEOWIDTH),
     m_iFrameNumber(0),
-    m_rtFrameLength(1000000) {
+    m_rtFrameLength(50000000) {
     // open the shared file
     HANDLE fileHandle = NULL;
     while (fileHandle == NULL) {
@@ -67,6 +67,8 @@ PPlusVideoStream::PPlusVideoStream(HRESULT* resultPointer, PPlusVideo* parentFil
         0, 0,
         m_iImageHeight * m_iImageWidth * 3
     );
+
+    sharedBufferSemaphore = CreateSemaphore(NULL, 0, 1, PPLUSCAMERASEMAPHORENAME);
 }
 
 STDMETHODIMP_(HRESULT __stdcall) PPlusVideoStream::QueryInterface(REFIID riid, void** ppv) {
@@ -173,10 +175,10 @@ HRESULT __stdcall PPlusVideoStream::GetStreamCaps(int index, AM_MEDIA_TYPE** med
     pvscc->StretchTapsY = 0;
     pvscc->ShrinkTapsX = 0;
     pvscc->ShrinkTapsY = 0;
-    pvscc->MinFrameInterval = FPS(50);   //50 fps
+    pvscc->MinFrameInterval = FPS(5);   //5 fps
     pvscc->MaxFrameInterval = FPS(1); // 0.2 fps
     pvscc->MinBitsPerSecond = (320 * 180 * 3 * 8) / 1;
-    pvscc->MaxBitsPerSecond = m_iImageWidth * m_iImageHeight * 3 * 8 * 50;
+    pvscc->MaxBitsPerSecond = m_iImageWidth * m_iImageHeight * 3 * 8 * 5;
 
     return S_OK;
 }
@@ -237,6 +239,7 @@ HRESULT __stdcall PPlusVideoStream::QuerySupported(REFGUID guidPropSet, DWORD dw
 PPlusVideoStream::~PPlusVideoStream() {
     UnmapViewOfFile(sharedBuffer);
     CloseHandle(sharedBufferFileHandle);
+    DbgLog((LOG_TRACE, 3, TEXT("Frames written %d"), m_iFrameNumber));
 }
 
 //
@@ -295,16 +298,17 @@ HRESULT PPlusVideoStream::FillBuffer(IMediaSample* pSample) {
     // Check that we're still using video
     ASSERT(m_mt.formattype == FORMAT_VideoInfo);
 
-    memcpy(data, sharedBuffer, size);
+    WaitForSingleObject(sharedBufferSemaphore, INFINITE);
 
-    //for (int i = 0; i < size; i++) {
-    //    data[i] = sharedBuffer[i];
-    //}
+    CopyMemory(data, sharedBuffer, size);
 
-    REFERENCE_TIME startTime = m_iFrameNumber * m_rtFrameLength;
+    m_pFilter->StreamTime(this->now);
+    REFERENCE_TIME startTime = now.m_time + VIDEODELAY;
+        //m_iFrameNumber * m_rtFrameLength;
     REFERENCE_TIME stopTime = startTime + m_rtFrameLength;
     
     pSample->SetTime(&startTime, &stopTime);
+    pSample->SetSyncPoint(TRUE);
     m_iFrameNumber++;
 
     pSample->SetSyncPoint(TRUE);
