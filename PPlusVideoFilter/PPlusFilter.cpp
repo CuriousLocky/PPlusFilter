@@ -42,7 +42,7 @@ PPlusVideoStream::PPlusVideoStream(HRESULT* resultPointer, PPlusVideo* parentFil
     parentFilter(parentFilter),
     m_iImageHeight(VIDEOHEIGHT),
     m_iImageWidth(VIDEOWIDTH),
-    m_rtFrameLength(50000000) {
+    m_rtFrameLength(FPS(30)) {
     // open the shared file
     HANDLE fileHandle = NULL;
     while (fileHandle == NULL) {
