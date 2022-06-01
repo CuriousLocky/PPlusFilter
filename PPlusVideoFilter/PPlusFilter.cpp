@@ -42,7 +42,6 @@ PPlusVideoStream::PPlusVideoStream(HRESULT* resultPointer, PPlusVideo* parentFil
     parentFilter(parentFilter),
     m_iImageHeight(VIDEOHEIGHT),
     m_iImageWidth(VIDEOWIDTH),
-    m_iFrameNumber(0),
     m_rtFrameLength(50000000) {
     // open the shared file
     HANDLE fileHandle = NULL;
@@ -239,7 +238,6 @@ HRESULT __stdcall PPlusVideoStream::QuerySupported(REFGUID guidPropSet, DWORD dw
 PPlusVideoStream::~PPlusVideoStream() {
     UnmapViewOfFile(sharedBuffer);
     CloseHandle(sharedBufferFileHandle);
-    DbgLog((LOG_TRACE, 3, TEXT("Frames written %d"), m_iFrameNumber));
 }
 
 //
@@ -309,7 +307,6 @@ HRESULT PPlusVideoStream::FillBuffer(IMediaSample* pSample) {
     
     pSample->SetTime(&startTime, &stopTime);
     pSample->SetSyncPoint(TRUE);
-    m_iFrameNumber++;
 
     pSample->SetSyncPoint(TRUE);
 
