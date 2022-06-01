@@ -18,7 +18,10 @@
     <ClCompile Include="setup.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="PPlusFilter.cpp">
+    <ClCompile Include="PPlusVideoFilter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PPlusAudioFilter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -147,7 +147,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="PPlusFilter.cpp" />
+    <ClCompile Include="PPlusAudioFilter.cpp" />
+    <ClCompile Include="PPlusVideoFilter.cpp" />
     <ClCompile Include="setup.cpp" />
   </ItemGroup>
   <ItemGroup>
