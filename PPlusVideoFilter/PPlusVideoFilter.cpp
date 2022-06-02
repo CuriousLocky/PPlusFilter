@@ -53,7 +53,7 @@ PPlusVideoStream::PPlusVideoStream(HRESULT* resultPointer, PPlusVideo* parentFil
                 NULL,
                 PAGE_READONLY,
                 0,
-                m_iImageHeight * m_iImageWidth * 3,
+                VIDEOBUFFERSIZE,
                 PPLUSCAMERAMMFNAME
             );
         }
@@ -64,7 +64,7 @@ PPlusVideoStream::PPlusVideoStream(HRESULT* resultPointer, PPlusVideo* parentFil
         fileHandle,
         FILE_MAP_READ,
         0, 0,
-        m_iImageHeight * m_iImageWidth * 3
+        VIDEOBUFFERSIZE
     );
 
     sharedBufferSemaphore = CreateSemaphore(NULL, 0, 1, PPLUSCAMERASEMAPHORENAME);
@@ -128,10 +128,10 @@ HRESULT __stdcall PPlusVideoStream::GetStreamCaps(int index, AM_MEDIA_TYPE** med
     DECLARE_PTR(VIDEOINFOHEADER, pvi, (*mediaTypePointer)->pbFormat);
 
     pvi->bmiHeader.biCompression = BI_RGB;
-    pvi->bmiHeader.biBitCount = 24;
+    pvi->bmiHeader.biBitCount = 32;
     pvi->bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
     pvi->bmiHeader.biWidth = this->m_iImageWidth;
-    pvi->bmiHeader.biHeight = this->m_iImageHeight;
+    pvi->bmiHeader.biHeight = -(this->m_iImageHeight);
     pvi->bmiHeader.biPlanes = 1;
     pvi->bmiHeader.biSizeImage = GetBitmapSize(&pvi->bmiHeader);
     pvi->bmiHeader.biClrImportant = 0;
@@ -142,7 +142,7 @@ HRESULT __stdcall PPlusVideoStream::GetStreamCaps(int index, AM_MEDIA_TYPE** med
     SetRectEmpty(&(pvi->rcTarget)); // no particular destination rectangle
 
     (*mediaTypePointer)->majortype = MEDIATYPE_Video;
-    (*mediaTypePointer)->subtype = MEDIASUBTYPE_RGB24;
+    (*mediaTypePointer)->subtype = MEDIASUBTYPE_RGB32;
     (*mediaTypePointer)->formattype = FORMAT_VideoInfo;
     (*mediaTypePointer)->bTemporalCompression = FALSE;
     (*mediaTypePointer)->bFixedSizeSamples = TRUE;
@@ -325,8 +325,8 @@ HRESULT PPlusVideoStream::SetMediaType(const CMediaType* pMediaType) {
             return E_UNEXPECTED;
         }
         
-        // Agree only on RGB24
-        if (pvi->bmiHeader.biBitCount == 24) {
+        // Agree only on RGB32
+        if (pvi->bmiHeader.biBitCount == 32) {
             this->m_MediaType = *pMediaType;
             //this->m_nCurrentBitDepth = pvi->bmiHeader.biBitCount;
             hr = S_OK;
@@ -352,7 +352,7 @@ HRESULT PPlusVideoStream::CheckMediaType(const CMediaType* pMediaType) {
     if (SubType == NULL) {
         return E_INVALIDARG;
     }
-    if (*SubType != MEDIASUBTYPE_RGB24) {
+    if (*SubType != MEDIASUBTYPE_RGB32) {
         return E_INVALIDARG;
     }
 
@@ -373,9 +373,9 @@ HRESULT PPlusVideoStream::CheckMediaType(const CMediaType* pMediaType) {
         
     // Don't accept formats with negative height, which would cause the desktop
     // image to be displayed upside down.
-    if (pvi->bmiHeader.biHeight < 0) {
-        return E_INVALIDARG;
-    }
+    //if (pvi->bmiHeader.biHeight < 0) {
+    //    return E_INVALIDARG;
+    //}
 
     return S_OK;  // This format is acceptable.
 }
@@ -400,14 +400,15 @@ HRESULT PPlusVideoStream::GetMediaType(int iPosition, CMediaType* pmt) {
 
     ZeroMemory(pvi, sizeof(VIDEOINFO));
     
-    // Only supports RGB 24
+    // Only supports RGB 32
     pvi->bmiHeader.biCompression =  BI_RGB;
-    pvi->bmiHeader.biBitCount = 24;
+    pvi->bmiHeader.biBitCount = 32;
     pvi->bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
     pvi->bmiHeader.biWidth = m_iImageWidth;
-    pvi->bmiHeader.biHeight = m_iImageHeight;
+    pvi->bmiHeader.biHeight = -m_iImageHeight;
     pvi->bmiHeader.biPlanes = 1;
     pvi->bmiHeader.biSizeImage = GetBitmapSize(&pvi->bmiHeader);
+    //pvi->bmiHeader.biSizeImage = 0;
     pvi->bmiHeader.biClrImportant = 0;
     pvi->AvgTimePerFrame = m_rtFrameLength;
 
