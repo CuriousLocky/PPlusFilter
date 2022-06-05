@@ -1,5 +1,7 @@
 ﻿using System.Drawing;
 using Xabe.FFmpeg;
+
+namespace Filter;
 class FileWriter {
     static void Main(String[] args)
     {
