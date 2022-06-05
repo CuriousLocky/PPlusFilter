@@ -65,7 +65,7 @@ namespace Filter {
             this.frameWarehouse = new FrameWarehouse(3, frameByteSize, frameQueue);
             int imageSize = frameByteSize;
             videoSemaphore = new Semaphore(0, 1, mmfSemaphoreName);
-            mmf = MemoryMappedFile.CreateOrOpen(mmfName, 16 + 1920 * 1080 * 4);
+            mmf = MemoryMappedFile.CreateOrOpen(mmfName, 16 + frameByteSize);
             videoAccessor = mmf.CreateViewAccessor();
             videoAccessor.Write(0, width);
             videoAccessor.Write(4, height);

@@ -39,24 +39,27 @@ CUnknown* __stdcall PPlusVideo::CreateInstance(IUnknown* unknown, HRESULT* resul
 
 PPlusVideoStream::PPlusVideoStream(HRESULT* resultPointer, PPlusVideo* parentFilter)
     : CSourceStream(PPLUSCAMERANAME, resultPointer, parentFilter, L"Out"),
-    parentFilter(parentFilter),
-    m_iImageHeight(VIDEOHEIGHT),
-    m_iImageWidth(VIDEOWIDTH),
-    m_rtFrameLength(FPS(30)) {
+    parentFilter(parentFilter){
     // open the shared file
+    HANDLE fileHeaderHandle = NULL;
+    while (fileHeaderHandle == NULL) {
+        fileHeaderHandle = OpenFileMapping(FILE_MAP_READ || FILE_MAP_WRITE, FALSE, PPLUSCAMERAMMFNAME);
+    }
+    int* header = (int*)MapViewOfFile(
+        fileHeaderHandle,
+        FILE_MAP_READ,
+        0, 0,
+        16
+    );
+    m_iImageWidth = header[0];
+    m_iImageHeight = header[1];
+    int frameRate = header[2];
+    m_rtFrameLength = FPS(frameRate);
+    CloseHandle(fileHeaderHandle);
+
     HANDLE fileHandle = NULL;
     while (fileHandle == NULL) {
         fileHandle = OpenFileMapping(FILE_MAP_READ || FILE_MAP_WRITE, FALSE, PPLUSCAMERAMMFNAME);
-        if (fileHandle == NULL) {
-            fileHandle = CreateFileMapping(
-                INVALID_HANDLE_VALUE,
-                NULL,
-                PAGE_READWRITE,
-                0,
-                VIDEOBUFFERSIZE + 16,
-                PPLUSCAMERAMMFNAME
-            );
-        }
     }
     this->sharedBufferFileHandle = fileHandle;
 
@@ -64,23 +67,9 @@ PPlusVideoStream::PPlusVideoStream(HRESULT* resultPointer, PPlusVideo* parentFil
         fileHandle,
         FILE_MAP_READ,
         0, 0,
-        VIDEOBUFFERSIZE + 16
+        m_iImageHeight * m_iImageWidth * 4 + 16
     );
-
-    int* videoInfo = (int*)sharedBuffer;
     sharedBuffer += 16;
-    m_iImageWidth = videoInfo[0];
-    m_iImageHeight = videoInfo[1];
-    int frameRate = videoInfo[2];
-    if((m_iImageHeight == 0) 
-        || (m_iImageWidth == 0)
-        || (frameRate == 0)){
-        m_iImageHeight = VIDEOHEIGHT;
-        m_iImageWidth = VIDEOWIDTH;
-        frameRate = 30;
-    }
-    m_rtFrameLength = FPS(frameRate);
-
     sharedBufferSemaphore = CreateSemaphore(NULL, 0, 1, PPLUSCAMERASEMAPHORENAME);
 }
 

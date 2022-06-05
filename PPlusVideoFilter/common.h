@@ -15,6 +15,3 @@
 
 #define FPS(x)				(UNITS / x)
 #define VIDEODELAY			(UNITS/10)
-#define VIDEOHEIGHT			1080
-#define VIDEOWIDTH			1920
-#define VIDEOBUFFERSIZE		(1920 * 1080 * 4)
