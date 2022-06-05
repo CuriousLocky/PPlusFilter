@@ -46,7 +46,7 @@ PPlusVideoStream::PPlusVideoStream(HRESULT* resultPointer, PPlusVideo* parentFil
     // open the shared file
     HANDLE fileHandle = NULL;
     while (fileHandle == NULL) {
-        fileHandle = OpenFileMapping(FILE_MAP_READ, FALSE, PPLUSCAMERAMMFNAME);
+        fileHandle = OpenFileMapping(FILE_MAP_READ || FILE_MAP_WRITE, FALSE, PPLUSCAMERAMMFNAME);
         if (fileHandle == NULL) {
             fileHandle = CreateFileMapping(
                 INVALID_HANDLE_VALUE,
