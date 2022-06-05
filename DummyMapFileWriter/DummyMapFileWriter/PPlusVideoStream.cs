@@ -6,10 +6,7 @@ using Microsoft.MixedReality.WebRTC;
 
 namespace Filter {
     public class PPlusVideoStream {
-        int height;
-        int width;
         int frameByteSize;
-        int frameRate;
         int frameDuration;
         class FrameWarehouse {
             int frameByteSize;
@@ -61,10 +58,7 @@ namespace Filter {
             int width = 1920,
             int frameRate = 30)
         {
-            this.height = height;
-            this.width = width;
             this.frameByteSize = height * width * 4;
-            this.frameRate = frameRate;
             this.frameDuration = 1000 / frameRate;
             this.currentFrame = new Bitmap(width, height, PixelFormat.Format32bppRgb);
             this.rect = new Rectangle(0, 0, width, height);
@@ -90,69 +84,10 @@ namespace Filter {
 
         public void pushFrame(Argb32VideoFrame nextFrame)
         {
-
             byte[] nextFrameData = frameWarehouse.get();
-            //IntPtr nextFrameSource = nextFrame.data;
-            //if((nextFrame.height != this.height)
-            //    || (nextFrame.width != this.width)){
-            //    uint sourceDataSize = nextFrame.width * nextFrame.height * 4;
-            //    byte[] sourceData = new byte[sourceDataSize];
-            //    System.Runtime.InteropServices.Marshal.Copy(nextFrameSource, sourceData, 0, (int)sourceDataSize);
-            //    Bitmap resizedImage = resizeFrame(nextFrame.data, (int)nextFrame.width, (int)nextFrame.height);
-            //    pushFrame(resizedImage);
-            //    return;
-            //    //centerFrame(nextFrame.data, (int)nextFrame.width, (int)nextFrame.height, nextFrameData);
-            //} else {
-            //    System.Runtime.InteropServices.Marshal.Copy(nextFrame.data, nextFrameData, 0, frameByteSize);
-            //}
             System.Runtime.InteropServices.Marshal.Copy(nextFrame.data, nextFrameData, 0, frameByteSize);
             frameQueue.Enqueue(nextFrameData);
         }
-        //static byte[] resizeBuffer = null;
-        //Bitmap resizeBMP = null;
-        //Rectangle resizeRect;
-        //private Bitmap resizeFrame(IntPtr frameData, int width, int height)
-        //{
-            //int currentFrameByteSize = width * height * 4;
-            //if ((resizeBuffer == null)
-            //    || (resizeBuffer.Length != currentFrameByteSize)) {
-            //    resizeBuffer = new byte[currentFrameByteSize];
-            //    resizeBMP = new Bitmap(width, height);
-            //    resizeRect = new Rectangle(0, 0, width, height);
-            //}
-            //System.Runtime.InteropServices.Marshal.Copy(frameData, resizeBuffer, 0, currentFrameByteSize);
-
-            ////int newWidth = this.height / height * width;
-            ////int newHeight = this.width / width * height;
-            ////if (newWidth > this.width) {
-            ////    newWidth = this.width;
-            ////} else {
-            ////    newHeight = this.height;
-            ////}
-            //BitmapData resizeBMPData = resizeBMP.LockBits(
-            //    resizeRect, ImageLockMode.ReadWrite, PixelFormat.Format32bppArgb
-            //);
-            //System.Runtime.InteropServices.Marshal.Copy(resizeBuffer, 0, resizeBMPData.Scan0, currentFrameByteSize);
-            //resizeBMP.UnlockBits(resizeBMPData);
-            //Bitmap newImage = new Bitmap(resizeBMP, new Size(this.width, this.height));
-
-            //return newImage;
-
-        //    MemoryStream memoryStream = new MemoryStream(frameData);
-        //}
-
-        //private void centerFrame(IntPtr frameData, int width, int height, byte[] frame)
-        //{
-        //    int vPad = (this.height - height) / 2;
-        //    int hPad = (this.width - width) / 2;
-        //    int framePos = (vPad * this.width + hPad)*4;
-        //    IntPtr frameRowPtr = frameData;
-        //    for(int row = 0; row < height; row++) {
-        //        System.Runtime.InteropServices.Marshal.Copy(frameRowPtr, frame, framePos, width * 4);
-        //        frameRowPtr = IntPtr.Add(frameRowPtr, width);
-        //        framePos += this.width * 4;
-        //    }
-        //}
 
         public void pushFrame(Bitmap nextFrameBitmap)
         {
@@ -180,7 +115,7 @@ namespace Filter {
                     fresh();
                 }
 
-                Thread.Sleep(frameRate);
+                Thread.Sleep(frameDuration);
             }
         }
 
