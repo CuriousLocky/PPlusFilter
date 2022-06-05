@@ -42,7 +42,7 @@ public:
 
 class PPlusVideoStream : public CSourceStream, public IAMStreamConfig, public IKsPropertySet {
 protected:
-    const REFERENCE_TIME m_rtFrameLength;
+    REFERENCE_TIME m_rtFrameLength;
 
     int m_iImageHeight;                 // The current image height
     int m_iImageWidth;                  // And current image width

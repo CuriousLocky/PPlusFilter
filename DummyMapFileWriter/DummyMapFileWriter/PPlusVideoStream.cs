@@ -71,8 +71,11 @@ namespace Filter {
             this.frameWarehouse = new FrameWarehouse(3, frameByteSize, frameQueue);
             int imageSize = frameByteSize;
             videoSemaphore = new Semaphore(0, 1, mmfSemaphoreName);
-            mmf = MemoryMappedFile.CreateOrOpen(mmfName, imageSize);
+            mmf = MemoryMappedFile.CreateOrOpen(mmfName, 16 + 1920 * 1080 * 4);
             videoAccessor = mmf.CreateViewAccessor();
+            videoAccessor.Write(0, width);
+            videoAccessor.Write(4, height);
+            videoAccessor.Write(8, frameRate);
             videoThread = new Thread(() => execute());
             videoThread.Start();
         }
@@ -184,7 +187,7 @@ namespace Filter {
         void fresh(byte[] nextFrame)
         {
             videoSemaphore.WaitOne(0);
-            videoAccessor.WriteArray(0, nextFrame, 0, nextFrame.Length);
+            videoAccessor.WriteArray(16, nextFrame, 0, nextFrame.Length);
             videoSemaphore.Release(1);
             frameWarehouse.store(nextFrame);
         }

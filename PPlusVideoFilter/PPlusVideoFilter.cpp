@@ -51,9 +51,9 @@ PPlusVideoStream::PPlusVideoStream(HRESULT* resultPointer, PPlusVideo* parentFil
             fileHandle = CreateFileMapping(
                 INVALID_HANDLE_VALUE,
                 NULL,
-                PAGE_READONLY,
+                PAGE_READWRITE,
                 0,
-                VIDEOBUFFERSIZE,
+                VIDEOBUFFERSIZE + 16,
                 PPLUSCAMERAMMFNAME
             );
         }
@@ -64,8 +64,22 @@ PPlusVideoStream::PPlusVideoStream(HRESULT* resultPointer, PPlusVideo* parentFil
         fileHandle,
         FILE_MAP_READ,
         0, 0,
-        VIDEOBUFFERSIZE
+        VIDEOBUFFERSIZE + 16
     );
+
+    int* videoInfo = (int*)sharedBuffer;
+    sharedBuffer += 16;
+    m_iImageWidth = videoInfo[0];
+    m_iImageHeight = videoInfo[1];
+    int frameRate = videoInfo[2];
+    if((m_iImageHeight == 0) 
+        || (m_iImageWidth == 0)
+        || (frameRate == 0)){
+        m_iImageHeight = VIDEOHEIGHT;
+        m_iImageWidth = VIDEOWIDTH;
+        frameRate = 30;
+    }
+    m_rtFrameLength = FPS(frameRate);
 
     sharedBufferSemaphore = CreateSemaphore(NULL, 0, 1, PPLUSCAMERASEMAPHORENAME);
 }
