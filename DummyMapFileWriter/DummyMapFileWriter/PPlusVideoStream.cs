@@ -50,7 +50,6 @@ namespace Filter {
         bool videoThreadTerminate = false;
         Bitmap currentFrame;
         Rectangle rect;
-        ImageConverter converter = new ImageConverter();
         public PPlusVideoStream(
             String mmfName = "PPlusCameraSharedBuffer",
             String mmfSemaphoreName = "Global\\PPlusVideoFrameSemaphore",

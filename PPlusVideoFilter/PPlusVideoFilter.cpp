@@ -43,7 +43,7 @@ PPlusVideoStream::PPlusVideoStream(HRESULT* resultPointer, PPlusVideo* parentFil
     // open the shared file
     HANDLE fileHeaderHandle = NULL;
     while (fileHeaderHandle == NULL) {
-        fileHeaderHandle = OpenFileMapping(FILE_MAP_READ || FILE_MAP_WRITE, FALSE, PPLUSCAMERAMMFNAME);
+        fileHeaderHandle = OpenFileMapping(FILE_MAP_READ, FALSE, PPLUSCAMERAMMFNAME);
     }
     int* header = (int*)MapViewOfFile(
         fileHeaderHandle,
@@ -59,7 +59,7 @@ PPlusVideoStream::PPlusVideoStream(HRESULT* resultPointer, PPlusVideo* parentFil
 
     HANDLE fileHandle = NULL;
     while (fileHandle == NULL) {
-        fileHandle = OpenFileMapping(FILE_MAP_READ || FILE_MAP_WRITE, FALSE, PPLUSCAMERAMMFNAME);
+        fileHandle = OpenFileMapping(FILE_MAP_READ, FALSE, PPLUSCAMERAMMFNAME);
     }
     this->sharedBufferFileHandle = fileHandle;
 
