@@ -12,3 +12,10 @@ If you have trouble building the solution after modifying/updating it, check whe
 To load the filter, open a terminal with administrative privilege, and run `regsvr32.exe {Path-to-the-built-DLL}`.
 
 To unload the filter, open a terminal with administrative privilege, and run `regsvr32.exe /U {Path-to-the-built-DLL}`.
+
+## Run included test
+After loading the filter, you can build and run the included `DummyMapFileWriter` in the folder with same name. 
+
+Note that the video playing feature requires the installation of FFMpeg. You can download the needed libraries at https://github.com/BtbN/FFmpeg-Builds/releases. 
+
+Choose, download and unzip `ffmpeg-master-latest-win64-lgpl-shared.zip`, and replace `FFmpegLoader.FFmpegPath` with the path to the unzipped `bin` folder. 
